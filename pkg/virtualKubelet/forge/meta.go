@@ -30,6 +30,8 @@ const (
 	LiqoDestinationClusterIDKey = "offloading.liqo.io/destination"
 	// LiqoOriginClusterNodeName is the name of the node on the origin cluster referenced by the virtual-kubelet.
 	LiqoOriginClusterNodeName = "offloading.liqo.io/nodename"
+	// LiqoOriginPodUIDAnnotation identifies the originating Pod incarnation of a ShadowPod.
+	LiqoOriginPodUIDAnnotation = "offloading.liqo.io/origin-pod-uid"
 )
 
 // ReflectionLabels returns the labels assigned to the objects reflected from the local to the remote cluster.

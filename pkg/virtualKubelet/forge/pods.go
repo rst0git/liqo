@@ -182,6 +182,21 @@ func RemoteShadowPod(local *corev1.Pod, remote *offloadingv1beta1.ShadowPod,
 	localMetaFiltered.SetLabels(FilterNotReflected(localMetaFiltered.GetLabels(), forgingOpts.LabelsNotReflected))
 	localMetaFiltered.SetAnnotations(FilterNotReflected(localMetaFiltered.GetAnnotations(), forgingOpts.AnnotationsNotReflected))
 
+	// Bind provenance at creation, ignoring annotations supplied by the source Pod.
+	// Never rebind an existing ShadowPod when a source name is reused, or infer
+	// provenance for legacy ShadowPods that were created without it.
+	originPodUID := remote.Annotations[LiqoOriginPodUIDAnnotation]
+	if creation {
+		originPodUID = string(local.UID)
+	}
+	delete(localMetaFiltered.Annotations, LiqoOriginPodUIDAnnotation)
+	if originPodUID != "" {
+		if localMetaFiltered.Annotations == nil {
+			localMetaFiltered.Annotations = map[string]string{}
+		}
+		localMetaFiltered.Annotations[LiqoOriginPodUIDAnnotation] = originPodUID
+	}
+
 	// Initialize the appropriate anti-affinity mutator if the corresponding annotation is present.
 	switch local.Annotations[liqoconst.PodAntiAffinityPresetKey] {
 	case liqoconst.PodAntiAffinityPresetValuePropagate:
